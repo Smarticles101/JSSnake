@@ -21,6 +21,7 @@ function Snake(canvas, context) {
     this.count=0;
     this.adding=false;
     this.body=[];
+    this.moveQueue=[];
     this.scale=16;
     this.dead=false;
 	this.firstkeypress=false;    
@@ -30,7 +31,38 @@ function Snake(canvas, context) {
       y:Math.floor(Math.random()*canvas.height/this.scale)*this.scale+1
     };
     
+    this.readMoveQueue=function() {
+        switch(this.moveQueue.shift()) {
+        	case 38:
+        		if(this.deltay!=1) {
+            		this.deltay=-1;
+                	this.deltax=0;
+            	}
+            break;
+            case 40:
+            	if(this.deltay!=-1) {
+                	this.deltay=1;
+                	this.deltax=0;
+                }
+            break;
+            case 37:
+            	if(this.deltax!=1) {
+                	this.deltax=-1;
+                	this.deltay=0;
+                }
+            break;
+            case 39:
+            	if(this.deltax!=-1) {
+                	this.deltax=1;
+                	this.deltay=0;
+                }
+            break;
+        }
+    };
+    
     this.move=function() {
+        this.readMoveQueue();
+        
         for (var i = 0; i < this.body.length; i++) {
             if(this.x==this.body[i].x && this.y==this.body[i].y) {
                 this.dead=true;
@@ -61,9 +93,7 @@ function Snake(canvas, context) {
         }
         
         if(this.count == this.body.length) {
-        	for(var i = 0; i<=this.body.length-1; i++) {
-            	this.body[i] = this.body[i+1];
-            }
+        	this.body.shift();
         }
         
         this.body[this.count-1] = {
@@ -83,7 +113,6 @@ function Snake(canvas, context) {
         context.fillStyle="blue";
 
         for (var i = 0; i<this.body.length; i++) {
-            console.log(this.body.length);
             context.fillRect(this.body[i].x,this.body[i].y,this.scale-2,this.scale-2);
         }
 
@@ -92,37 +121,7 @@ function Snake(canvas, context) {
     };
     
     this.key=function(keyCode) {
-	if(!this.firstkeypress)
-    	switch(keyCode) {
-        	case 38:
-        		if(this.deltay!=1) {
-            		this.deltay=-1;
-                	this.deltax=0;
-			console.log("Up");
-            	}
-            break;
-            case 40:
-            	if(this.deltay!=-1) {
-                	this.deltay=1;
-                	this.deltax=0;
-			console.log("Down");
-                }
-            break;
-            case 37:
-            	if(this.deltax!=1) {
-                	this.deltax=-1;
-                	this.deltay=0;
-			console.log("Left");
-                }
-            break;
-            case 39:
-            	if(this.deltax!=-1) {
-                	this.deltax=1;
-                	this.deltay=0;
-			console.log("Right");
-                }
-            break;
-        }
+	    this.moveQueue.push(keyCode);
     };
 }
 
